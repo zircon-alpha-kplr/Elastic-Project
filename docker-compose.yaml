@@ -1,0 +1,55 @@
+version: '3.6'
+services:
+  Elasticsearch:
+    image: elasticsearch:8.7.0
+    container_name: elasticsearch
+    restart: always
+    volumes:
+    - elastic_data:/usr/share/elasticsearch/data/
+    environment:
+      XPACK_MONITORING_ENABLED: false
+      xpack.security.enabled: false
+      ES_JAVA_OPTS: "-Xms2g -Xmx2g"
+      discovery.type: single-node
+      network.host: "0.0.0.0" 
+    ports:
+    - '9200:9200'
+    - '9300:9300'
+    networks:
+      - elk
+
+  Logstash:
+    image: logstash:8.7.0
+    container_name: logstash
+    restart: always
+    volumes:
+    - ./logstash/:/logstash_dir
+    - ./input:/input
+    - ./output:/output
+    command: logstash -f /logstash_dir/logstash.conf 
+    depends_on:
+      - Elasticsearch
+    ports:
+    - '9600:9600'
+    environment:
+      LS_JAVA_OPTS: "-Xms2g -Xmx2g"
+    networks:
+      - elk
+
+  Kibana:
+    image: kibana:8.7.0
+    container_name: kibana
+    restart: always       
+    ports:
+    - '5601:5601'
+    environment:
+      - ELASTICSEARCH_URL=https://9200-zirconalpha-elasticproj-dl6pwwc6un1.ws-eu95.gitpod.io
+    depends_on:
+      - Elasticsearch  
+    networks:
+      - elk
+volumes:
+  elastic_data: {}
+
+networks:
+  elk:
