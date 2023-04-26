@@ -16,3 +16,4 @@ for filename in os.listdir(folder):
         with open(os.path.join(folder, filename) + '.ndjson', 'w') as f:
             f.write('\n'.join(bulk_data))
         print("### " + filename + " converted successfully in " + filename + ".ndjson !")
+#
